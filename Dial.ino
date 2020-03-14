@@ -2,7 +2,7 @@
 #include "Arduino.h" 
 #include "Dial.h"
 
-Dial::Dial(int PinA, int PinB, int Pulsems, int timeType, int dialType) {
+Dial::Dial(uint8_t PinA, uint8_t PinB, uint16_t Pulsems, uint8_t timeType, uint8_t dialType) {
   pinMode(PinA, OUTPUT); 
   pinMode(PinB, OUTPUT); 
 
@@ -13,7 +13,7 @@ Dial::Dial(int PinA, int PinB, int Pulsems, int timeType, int dialType) {
   _dialType = dialType; 
   _pulsems = Pulsems; 
   
-  switch (dialType) {
+  switch (dialType) { // Set correct _periodms and _pauseDefaultms 
     case MINUTE12:   
       _totalDialPeriods = 720;   
       switch (timeType) {
@@ -24,7 +24,7 @@ Dial::Dial(int PinA, int PinB, int Pulsems, int timeType, int dialType) {
         break; 
         case SIDERIAL:
           _periodms =  59820.2695;
-          _pauseDefaultms = (int)_periodms - _pulsems;
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems;
         break; 
       }
     break; 
@@ -34,11 +34,11 @@ Dial::Dial(int PinA, int PinB, int Pulsems, int timeType, int dialType) {
       switch (timeType) {
         case LOCAL: case UTC: 
           _periodms =  60000;
-          _pauseDefaultms = (int)_periodms - _pulsems; 
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems; 
         break; 
         case SIDERIAL:
           _periodms =  59820.2695; 
-          _pauseDefaultms = (int)_periodms - _pulsems;
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems;
         break; 
       }
     break; 
@@ -48,11 +48,11 @@ Dial::Dial(int PinA, int PinB, int Pulsems, int timeType, int dialType) {
       switch (timeType) {
         case LOCAL: case UTC: 
           _periodms =  1000; 
-          _pauseDefaultms = (int)_periodms - _pulsems;
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems;
         break; 
         case SIDERIAL:
           _periodms =  997.2695; 
-          _pauseDefaultms = (int)_periodms - _pulsems;
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems;
         break; 
       }
     break; 
@@ -62,16 +62,16 @@ Dial::Dial(int PinA, int PinB, int Pulsems, int timeType, int dialType) {
       switch (timeType) {
         case LOCAL: case UTC: 
           _periodms =  1000; 
-          _pauseDefaultms = (int)_periodms - _pulsems;
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems;
         break; 
         case SIDERIAL:
           _periodms =  997.2695; 
-          _pauseDefaultms = (int)_periodms - _pulsems; 
+          _pauseDefaultms = (uint16_t)_periodms - _pulsems; 
         break; 
       }
     break; 
   }
-  _maxTicks = pow(2, 32) / (int)_periodms;  // avoid rollover of millisForTicks
+  _maxTicks = pow(2, 32) / (uint16_t)_periodms;  // avoid rollover of millisForTicks
 }; 
 
 
@@ -95,13 +95,13 @@ void Dial::SetDial (char rx_bytes[]) {
 }
 
 
-void Dial::WriteEEPROM(int address) {
+void Dial::WriteEEPROM(uint8_t address) {
   EEPROM.write(address,_state); 
   EEPROM_writeAnything(address + 1,_CurrentIndication);  
 }
 
 
-void Dial::ReadEEPROM(int address) {
+void Dial::ReadEEPROM(uint8_t address) {
   _state = EEPROM.read(address); 
   EEPROM_readAnything(address + 1, _CurrentIndication);  
 }
@@ -130,33 +130,40 @@ void Dial::DoFractional () {
   if (_ticks > _maxTicks) {         // avoid rollover
     _ticks = 0; 
     _millisecondsForTicks = 0; 
-#ifdef DB_SERIAL_TICK
-    Serial.print("ResetMaxTicks");
-#endif
+    
+    #ifdef DB_SERIAL_TICK
+      Serial.print("ResetMaxTicks");
+    #endif
+    
   }
   
   if (_ticks > _oldTicks ) {
-#ifdef DB_SERIAL_TICK
-    Serial.print ("_ticks: "); Serial.println (_ticks); 
-#endif    
+    
+    #ifdef DB_SERIAL_TICK
+      Serial.print ("_ticks: "); Serial.println (_ticks); 
+    #endif    
+    
     realPeriod = (float) _millisecondsForTicks / (float)_ticks; 
     
     if (realPeriod < (int)_periodms) {
       _ticks = 0; 
       _millisecondsForTicks = 0;  // restart if offscale. 
     }
-#ifdef DB_SERIAL_TICK    
-    Serial.print ("Period: "); Serial.print(_periodms); Serial.print (" RealPeriod: ");Serial.println (realPeriod,4); 
-#endif
+    
+    #ifdef DB_SERIAL_TICK    
+      Serial.print ("Period: "); Serial.print(_periodms); Serial.print (" RealPeriod: ");Serial.println (realPeriod,4); 
+    #endif
     
     if (realPeriod < _periodms) {
       _correction = 1; 
     } else {
       _correction = 0; 
     }
-#ifdef DB_SERIAL_TICK    
-    Serial.print ("_correction: "); Serial.println (_correction); 
-#endif
+    
+    #ifdef DB_SERIAL_TICK    
+      Serial.print ("_correction: "); Serial.println (_correction); 
+    #endif
+    
     _oldTicks = _ticks; 
 
   }
@@ -164,7 +171,7 @@ void Dial::DoFractional () {
 
 
 void Dial::DoDCF() {
-  long realtime, offset; 
+  int32_t realtime, offset; 
   
   Clock::time_t now;
   DCF77_Clock::read_current_time(now);
@@ -182,7 +189,6 @@ void Dial::DoDCF() {
     break; 
     
     case SIDERIAL: 
-      Timezone::adjust(now, (now.uses_summertime? -2: -1)); // Subtrackt MET/MEST offset from DCF to find UTC
       realtime = currentSiderealSecond(now); 
     break; 
     
@@ -232,28 +238,23 @@ uint8_t Dial::RunStop(uint8_t runStop) {
 }
 
 
-void Dial::DialSR()   // Dial service routine. runStop = TRUE = run, runStop = FALSE = stop
-{ 
+void Dial::DialSR() {  // Dial service routine. runStop = TRUE = run, runStop = FALSE = stop
+  
   _millisecondsForTicks++; 
   if ((milliseconds - _lastMilliseconds) < _delayTime ) {   
     return; 
   }
 
   _lastMilliseconds = milliseconds; 
-  
-  // Serial.print ("_tickCorrection: "); Serial.println (_tickCorrection); 
-     
+       
   switch (_state) {  
+    
     case 0: //   pause
-
-      // if (_correction != 0 ) DialPrintIndication(); // for debug 
-      
       digitalWrite (_pinA,0); 
       digitalWrite (_pinB,0); 
-      
       _delayTime =  
         _pauseDefaultms + 
-        _correction;
+        _correction;     
         
       if (_runStop) _state = 1;
     break;  
@@ -272,7 +273,6 @@ void Dial::DialSR()   // Dial service routine. runStop = TRUE = run, runStop = F
     case 2: //  pause 
       digitalWrite (_pinA,0); 
       digitalWrite (_pinB,0); 
-      
       _delayTime =  
         _pauseDefaultms + 
         _correction;
@@ -291,9 +291,6 @@ void Dial::DialSR()   // Dial service routine. runStop = TRUE = run, runStop = F
       _state = 0; 
     break; 
   }
-
-   // Serial.print("_delayTime   "); Serial.println(_delayTime); 
-   // Serial.print("milliseconds "); Serial.println(milliseconds); 
   
   if (_CurrentIndication > _totalDialPeriods) _CurrentIndication = 0; 
   
@@ -301,13 +298,15 @@ void Dial::DialSR()   // Dial service routine. runStop = TRUE = run, runStop = F
 }
 
 void Dial::DialPrintIndication() {
-  Serial.print("Type: "); 
+  
+  Serial.print("Type: ");
   switch (_dialType) {
     case MINUTE12:    Serial.print("12h, minutes,"); break; 
     case MINUTE24:    Serial.print("24h, minutes,"); break; 
     case SEC12:       Serial.print("12h, seconds,"); break; 
     case SEC24:       Serial.print("24h, seconds,"); break; 
   }
+  
   switch (_timeType) {
     case SIDERIAL:  Serial.print(" siderial. "); break; 
     case LOCAL:     Serial.print(" lokal.    "); break; 

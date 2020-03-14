@@ -1,7 +1,8 @@
 
 void Check_serial_input(void) {
-  static int rx_count; 
+  static uint8_t rx_count; 
   static char rx_bytes[10]; 
+  
   if (Serial.available() > 0) { 
     char rx_byte = Serial.read(); 
     rx_bytes[rx_count] = rx_byte;
@@ -14,8 +15,10 @@ void Check_serial_input(void) {
   }
 }
 
+
 void process_command(char rx_bytes[]) {
   int counter; 
+  
   while (rx_bytes[counter] != '\r' && rx_bytes[counter] != '\n') { 
     Serial.print(rx_bytes[counter]); 
     counter++; 
@@ -42,9 +45,11 @@ void process_command(char rx_bytes[]) {
   Serial.println(); Serial.print("> ");
 }
 
+
 void print_status() {
   int startUpCounter; 
   EEPROM_readAnything(COUNTER, startUpCounter);
+  
   Serial.println();
   Serial.print("Klok impuls gever "); Serial.print(VERSION); Serial.println(" WLS, Aart 2019");
   Serial.println("Status: ");
@@ -56,6 +61,7 @@ void print_status() {
   Serial.println(); 
   
   Serial.print("UTC time:       "); 
+  
   if (DCF77_Clock::get_clock_state() != Clock::useless) {
     
     Clock::time_t now;

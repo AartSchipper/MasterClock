@@ -2,7 +2,7 @@
 // UTC time to local Siderial time in seconds function 
 // Note: the time.year counter has a range of 0-99 
 
-long currentSiderealSecond(Clock::time_t &time) { // Needs LONGITUDE
+uint32_t currentSiderealSecond(Clock::time_t &time) { // Needs LONGITUDE
      // sidereal calculation constants
      const float    dc =    0.0657098244,
                     tc =    1.00273791,
@@ -12,10 +12,10 @@ long currentSiderealSecond(Clock::time_t &time) { // Needs LONGITUDE
                     siderealday = 23.9344699; 
      
      // calculate G (based on extrapolation)
-     int g = BCD::bcd_to_int(time.year);
+     int16_t g = BCD::bcd_to_int(time.year);
      
-     int leap = int((g+1.0)/4.0);                              // number of leap years since 2000
-     int nleap = g-leap;                                       // number of non-leap years since 2000   
+     int16_t leap = int((g+1.0)/4.0);                              // number of leap years since 2000
+     int16_t nleap = g-leap;                                       // number of non-leap years since 2000   
      float G = g2000 + leap*lc + nleap*nc;                    
      
     // calculate number of days since beginning of year
@@ -28,40 +28,50 @@ long currentSiderealSecond(Clock::time_t &time) { // Needs LONGITUDE
     float GST = G + ( dc * nd ) + (tc * UTCTime);           
     float LST = GST + 24.0 + (LONGITUDE / 360 * siderealday);   // adjust for longitude portion of siderail day
     while(LST>24.0) {  LST -= 24.0; }                           // adjust to bring into 0-24 hours
-    long LSTseconds = LST * 3600; // Return LST in Siderial seconds
+    uint32_t LSTseconds = LST * 3600; // Return LST in Siderial 
+
     return LSTseconds; 
 }
 
-long nowToSeconds(Clock::time_t &time) {
-  long timeSeconds; 
+
+uint32_t nowToSeconds(Clock::time_t &time) {
+  uint32_t timeSeconds; 
+  
   timeSeconds += BCD::bcd_to_int(time.hour) * 3600; 
   timeSeconds += BCD::bcd_to_int(time.minute) * 60; 
   timeSeconds += BCD::bcd_to_int(time.second) * 1; 
+  
   return timeSeconds; 
 }
 
+
 void PrintTimeHuman(long totalDialPeriods, long CurrentIndication) {
-    long h, m, s; 
+    int h, m, s; 
+    
     switch (totalDialPeriods) { 
-    case 86400: case 43200:
-      h = int (CurrentIndication / 3600); 
-      m = int ((CurrentIndication - (3600 * h)) / 60); 
-      s = CurrentIndication -( 3600 * h) - (60 * m); 
-    break; 
-    case 1440: case 720: 
-      h = int(CurrentIndication / 60); 
-      m = int (CurrentIndication - (60 * h)); 
-      s = 0; 
-    break; 
+      case 86400: case 43200:
+        h = int (CurrentIndication / 3600); 
+        m = int ((CurrentIndication - (3600 * (long)h)) / 60); 
+        s = CurrentIndication -( 3600 * (long)h) - (60 * (long)m); 
+      break; 
+    
+      case 1440: case 720: 
+        h = int (CurrentIndication / 60); 
+        m = int (CurrentIndication - (60 * (long)h)); 
+        s = 0; 
+      break; 
+      
     }
+    
     Serial.print(h); Serial.print(":"); if (m < 10) Serial.print("0"); Serial.print(m);  
     Serial.print(";"); if (s < 10) Serial.print("0"); Serial.print(s);  
 }
 
+
 // number of days of month (m) and date (d) since beginning of year (y)
-int doNumDays(int y, int m, int d) {
-  int v=0;
-  byte leapyear = ((y % 4) == 0)? 1 : 0;
+int16_t doNumDays(int16_t y, int8_t m, int8_t d) {
+  int16_t v=0;
+  int8_t leapyear = ((y % 4) == 0)? 1 : 0;
   
   switch(m) {
       case 12:  v += 30;        // Dec
@@ -81,6 +91,7 @@ int doNumDays(int y, int m, int d) {
 
 
 namespace Timezone {
+    
     uint8_t days_per_month(const Clock::time_t &now) {
         switch (now.month.val) {
             case 0x02:
@@ -146,12 +157,16 @@ namespace Timezone {
     }
 }
 
+
 void paddedPrint(BCD::bcd_t n) {
+  
     Serial.print(n.digit.hi);
     Serial.print(n.digit.lo);
 }
 
+
 void print_DCF_time(Clock::time_t &now) {
+  
    if (now.month.val > 0) {
         switch (DCF77_Clock::get_clock_state()) {
             case Clock::useless: Serial.print(F("useless ")); break;
@@ -169,6 +184,7 @@ void print_DCF_time(Clock::time_t &now) {
             case 6: Serial.print(F("Saturday ")); break;
             case 7: Serial.print(F("Sunday   ")); break;
         }
+        
         Serial.print(F(" 20"));
         paddedPrint(now.year);
         Serial.print('-');
