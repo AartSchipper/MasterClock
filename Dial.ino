@@ -229,15 +229,17 @@ void Dial::DoDCF() {
     break; 
 
 // debug
-     if (_ticks > _oldTicks ) {
+    
+    
+  }
+
+   if (_ticks > _oldTicks ) {
         Serial.print("_CurrentIndication: "); Serial.println(_CurrentIndication); 
         Serial.print("Realtime: "); Serial.println(realtime); 
         Serial.print("Offset: "); Serial.println(offset); 
         _oldTicks = _ticks; 
      }
      
-    
-  }
 }
 
 

@@ -34,12 +34,12 @@ uint32_t currentSiderealSecond(Clock::time_t &time) { // Needs LONGITUDE
 }
 
 
-uint32_t nowToSeconds(Clock::time_t &time) {
-  uint32_t timeSeconds; 
+int32_t nowToSeconds(Clock::time_t &time) {
+  int32_t timeSeconds; 
   
-  timeSeconds += BCD::bcd_to_int(time.hour) * 3600; 
-  timeSeconds += BCD::bcd_to_int(time.minute) * 60; 
-  timeSeconds += BCD::bcd_to_int(time.second) * 1; 
+  timeSeconds += (int32_t)BCD::bcd_to_int(time.hour) * 3600; 
+  timeSeconds += (int32_t)BCD::bcd_to_int(time.minute) * 60; 
+  timeSeconds += (int32_t)BCD::bcd_to_int(time.second) * 1; 
   
   return timeSeconds; 
 }
