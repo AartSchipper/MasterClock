@@ -197,7 +197,7 @@ void Dial::DoDCF() {
   switch (_dialType) {
     
     case MINUTE12: 
-      realtime /= 2; 
+      if (realtime > 43200) realtime -=43200; 
      
     case MINUTE24: 
       realtime /= 60; 
@@ -214,7 +214,7 @@ void Dial::DoDCF() {
     break;
        
     case SEC12: 
-      realtime /= 2; 
+      if (realtime > 43200) realtime -= 43200; 
     
     case SEC24:
     
@@ -227,6 +227,15 @@ void Dial::DoDCF() {
       if (offset > 1 && offset < 360) _correction = 100;        // speed 0,1 s down when less than 6 minutes ahead
       if (offset > 360 || offset < -360) _correction = 59000;   // One pulse per minute, (almost) stop and wait. 
     break; 
+
+// debug
+     if (_ticks > _oldTicks ) {
+        Serial.print("_CurrentIndication: "); Serial.println(_CurrentIndication); 
+        Serial.print("Realtime: "); Serial.println(realtime); 
+        Serial.print("Offset: "); Serial.println(offset); 
+        _oldTicks = _ticks; 
+     }
+     
     
   }
 }
