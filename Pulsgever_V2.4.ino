@@ -13,19 +13,9 @@
 
   Dial object based on klokpulsgever_1.3
 
-  2.0:  - Ticks in 1 ms interrupt of DCF receiver. TIMER0 unused.
-        - Makes SECONDARY_DIAL optional
-        - Removed 'help' to save memory
-        - New fractional correction algorithm when running on xtal, outside the interrupt.
-        - Replace millis() with own milliseconds
-        - Added debug flags and checked times on the scope.
-        - Added dual color DCF led on C3 + C4. C3 = RED = free running, C4 = green = locked to DCF
-  2.1   - MILLIS_TYPE test, rollover safe code
-  2.2   - Switch both lights
-  2.3   - New powerCheck routine. The delay() replacement code did not work as expected. Introduction of U_TIME, U_LOSS_COUNTER, dial.runstop() function  
-  2.4   - Added DST for local time. 
-
   Todo: - Test with minute dial
+
+  
   
 */
 

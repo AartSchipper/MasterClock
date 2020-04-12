@@ -223,8 +223,8 @@ void Dial::DoDCF() {
       if (offset < _totalDialPeriods / -2)  offset += _totalDialPeriods; 
 
       if (offset == 0) _correction = 0; 
-      if (offset < -1 && offset > -360) _correction = -100;     // speed 0,1 s up when less than 6 minutes behind
-      if (offset > 1 && offset < 360) _correction = 100;        // speed 0,1 s down when less than 6 minutes ahead
+      if (offset < 0 && offset > -360) _correction = -100;     // speed 0,1 s up when less than 6 minutes behind
+      if (offset > 0 && offset < 360) _correction = 100;        // speed 0,1 s down when less than 6 minutes ahead
       if (offset > 360 || offset < -360) _correction = 59000;   // One pulse per minute, (almost) stop and wait. 
     break; 
 
@@ -232,14 +232,14 @@ void Dial::DoDCF() {
     
     
   }
-
-   if (_ticks > _oldTicks ) {
+/* 
+   if (_ticks > _oldTicks ) {   // for debug
         Serial.print("_CurrentIndication: "); Serial.println(_CurrentIndication); 
         Serial.print("Realtime: "); Serial.println(realtime); 
         Serial.print("Offset: "); Serial.println(offset); 
         _oldTicks = _ticks; 
      }
-     
+  */    
 }
 
 
