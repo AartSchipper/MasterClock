@@ -4,7 +4,7 @@ MasterClock
 Arduino based master clock for slave clocks. 
 --------------------------------------------
 
-* Minute or second impules. 
+* Minute or second impulses. 
 * DCF-77 as a time reference. 
 * Siderial, lockal or UTC time. 
 
@@ -12,7 +12,7 @@ This is an Arduino project that runs up to two (sets of-) slave clocks showing d
 
 The project consists of specially created hardware, akin to an Arduino Uno with an xtal and some interfaces, and an Arduino based firmware. The firmware is based on the DCF library and examples by: https://github.com/udoklein/dcf77, Copyright 2016 Udo Klein, GPL
 
-Aart, 04-2020]
+Aart, 04-2020
 
 
 Hardware layout
@@ -37,13 +37,13 @@ Firmware layout
 The Dial class contains all functions related to a dial. 
 dail1 & dail2 are instances of this class. 
 
-Once every ms sample_input_pin() is called by the DCF library.   
+Every millisecond sample_input_pin() is called by the DCF library.   
 In this routine also Dial::DialSR(), the dial Service Routine is called to see if a puls needs to be started or stopped.   
 
 The rest of the program runs in the main loop and is not time critical. In this loop: 
-	* powerCheck() stops the dails in case of power loss and stores the positions in EEPROM, so the clocks can continue automatically when power returns. 
-	* Check_serial_input() Handles the terminal for debugging and synchonizing the dials. 
-	* Dial::DoCorrection() Handles synchronising the dials to DCF, or running the dial at the correct rate in case the DCF signal is lost. 
+* powerCheck() stops the dails in case of power loss and stores the positions in EEPROM, so the clocks can continue automatically when power returns. 
+* Check_serial_input() Handles the terminal for debugging and synchonizing the dials. 
+* Dial::DoCorrection() Handles synchronising the dials to DCF, or running the dial at the correct rate in case the DCF signal is lost. 
 
 Terminal
 --------
@@ -55,18 +55,18 @@ The firmware has a simple provision for reading the time and setting the current
 Klok impuls gever 2.40 WLS, Aart 2020
 > Status: 
 
-109 times restarted
+> 109 times restarted
 
-Longitude: 4.46
+>Longitude: 4.46
 
-UTC time:       synced: Monday    2020-04-13 10:51:17 
-Local siderial: 0:37;26 
-Local time:     synced: Monday    2020-04-13 12:51:17 UTC+02
+> UTC time:       synced: Monday    2020-04-13 10:51:17 
+> Local siderial: 0:37;26 
+> Local time:     synced: Monday    2020-04-13 12:51:17 UTC+02
 
 
-Dial 1: Type: 24h, seconds, siderial. Position: 0:37;26 correction: 0 ms/impuls
+> Dial 1: Type: 24h, seconds, siderial. Position: 0:37;26 correction: 0 ms/impuls
 
-To set dial 1: 1hhmmss, dial 2: 2hhmmss
+> To set dial 1: 1hhmmss, dial 2: 2hhmmss
 
 
 ---
@@ -78,9 +78,8 @@ Typical behaviour
 -----------------
 
 Assuming the dail positions were correct during shutdown: 
-
-	1. After startup the dials run in the default speed of the time type until the DCF library is synced.  
-	2. When the library is synced the led turns green and the hands are moved to the correct position (minute impulse dials) or stopped (second impulse dials) to wait until the correct time to start. 
+* After startup the dials run in the default speed of the time type until the DCF library is synced.  
+* When the library is synced the led turns green and the hands are moved to the correct position (minute impulse dials) or stopped (second impulse dials) to wait until the correct time to start. 
 
 Small deviations up to six minutes are corrected by making the pauses between impulses slightly longer or shorter. 
 
