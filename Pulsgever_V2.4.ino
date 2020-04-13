@@ -1,7 +1,7 @@
 /*
   Siderial clock impulse
 
-  Aart for WLS, 09-2019
+  Aart for WLS, started 09-2019
 
   Based on the DCF library and example by:
   www.blinkenlight.net, Copyright 2016 Udo Klein, GPL
@@ -14,7 +14,6 @@
   Dial object based on klokpulsgever_1.3
 
   Todo: - Test with minute dial
-
   
   
 */
@@ -27,6 +26,7 @@
 // #define DB_PULSE_DIALS           // C2 high during DoCorrection() of all dials. 12 us when running fractional, 350 us when locked to DCF
 // #define DB_SERIAL_TICK           // Sends Period, Realperiod, Correction variables per tick over serial. Use only with one dial.
 // #define DB_POWER                 // Sends info about the power detection
+
 #define MILLS_TYPE uint32_t         // can be set from uint32_t to to uint16_t for overflow testing of milliseconds in 65 seconds. 
 
 // Includes
@@ -61,7 +61,7 @@ const float LONGITUDE = 4.463; // 4.463 home, 4.483 Observatory
 // Pin A and pin B are the inputs of the H-bridge for the coil of the clock.
 // Pulsems is the length of the pulses in ms.
 
-Dial dial1 (9,  10,  300,  LOCAL,  SEC24);
+Dial dial1 (9,  10,  300,  SIDERIAL,  SEC24);
 
 #ifdef SECONDARY_DIAL
   Dial dial2 (3,  11,  300,  LOCAL,     SEC24);

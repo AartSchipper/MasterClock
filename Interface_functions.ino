@@ -51,7 +51,7 @@ void print_status() {
   EEPROM_readAnything(COUNTER, startUpCounter);
   
   Serial.println();
-  Serial.print("Klok impuls gever "); Serial.print(VERSION); Serial.println(" WLS, Aart 2019");
+  Serial.print("Klok impuls gever "); Serial.print(VERSION); Serial.println(" WLS, Aart 2020");
   Serial.println("Status: ");
   Serial.println(); 
   

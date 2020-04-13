@@ -207,8 +207,12 @@ void Dial::DoDCF() {
       if (offset < _totalDialPeriods / -2)  offset += _totalDialPeriods; // Want de klok is rond.. 
       
       if (offset == 0) _correction = 0; 
-      if (offset < -1 && offset > -6) _correction = -10000;   // speed 10 s up when less than 6 minutes behind
-      if (offset > 1 && offset < 6) _correction = 1000000L;   // Stop when less than 6 minutes ahead
+      
+      if (offset = -1) _correction = -1000;    // speed 1 s up when less than 1 minutes behind
+      if (offset = 1 ) _correction = 1000;     // Slow down 1s when less than 1 minutes ahead
+      
+      if (offset < -2 && offset > -6) _correction = -10000;   // speed 10 s up when less than 6 minutes behind
+      if (offset > 2 && offset < 6) _correction = 10000;      // Slow down when less than 6 minutes ahead
       if (offset > 6 || offset < -6) _correction = -59000;    // Speed up. 
       
     break;
